@@ -1844,7 +1844,7 @@ def to_excel_bytes(df_all: pd.DataFrame, df_ok: pd.DataFrame, df_err: pd.DataFra
 st.set_page_config(
     page_title="TY LOGIS 업무 자동화 시스템",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 import base64
@@ -1999,6 +1999,8 @@ def login_page():
     <style>
     [data-testid="stAppViewContainer"] > .main { padding: 0 !important; }
     .block-container { padding: 0 !important; max-width: 100% !important; }
+    [data-testid="stSidebar"] { display: none !important; }
+    [data-testid="collapsedControl"] { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -2118,26 +2120,8 @@ def main_page():
 
         st.markdown(f'<div style="font-size:10px;color:#b8913a;text-align:center;margin-top:20px;">{today_str}</div>', unsafe_allow_html=True)
 
-    # ── 메인 콘텐츠 ──
-    st.markdown('<div class="section-title">부서별 업무 메뉴</div>', unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3, gap="large")
-    with c1:
-        st.markdown('<div class="dashboard-card"><div class="card-icon">🛒</div><div class="card-title">전자상거래</div><div class="card-desc">전자상 통관·택배·경동리스트 관련 업무를 처리합니다.</div></div>', unsafe_allow_html=True)
-        if st.button("전자상거래 들어가기", use_container_width=True, key="go_ecom"):
-            st.session_state.page = "ecommerce"; st.rerun()
-    with c2:
-        st.markdown('<div class="dashboard-card"><div class="card-icon">🚢</div><div class="card-title">SEA & AIR</div><div class="card-desc">해상·항공 포워딩 관련 업무 메뉴를 구성할 수 있습니다.</div></div>', unsafe_allow_html=True)
-        if st.button("SEA & AIR 들어가기", use_container_width=True, key="go_seaair"):
-            st.session_state.page = "seaair"; st.rerun()
-    with c3:
-        st.markdown('<div class="dashboard-card"><div class="card-icon">🏭</div><div class="card-title">3PL</div><div class="card-desc">BL/PDF 변환, 현장 운영, 적재 관련 업무를 처리합니다.</div></div>', unsafe_allow_html=True)
-        if st.button("3PL 들어가기", use_container_width=True, key="go_3pl"):
-            st.session_state.page = "threepl"; st.rerun()
-
-    st.divider()
-
-    # ── 현장 현황 대시보드 ──
-    st.markdown('<div class="section-title">📋 오늘의 현장 현황</div>', unsafe_allow_html=True)
+    # ── 메인 콘텐츠: 현장 현황 대시보드 ──
+    st.markdown(f'<div class="topbar"><div><div class="topbar-title">오늘의 현장 현황</div><div class="topbar-sub">{today_str} · 접속: {st.session_state.user}</div></div><div class="badge">v23.0</div></div>', unsafe_allow_html=True)
 
     if is_admin():
         with st.expander("🔧 관리자 — 이미지 업로드", expanded=False):
