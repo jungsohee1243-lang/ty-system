@@ -2025,27 +2025,32 @@ def login_page():
         """, unsafe_allow_html=True)
 
     with right_col:
-        st.markdown("<div style='padding: 80px 40px 20px;'>", unsafe_allow_html=True)
+        # 상단 여백으로 세로 중앙 맞추기
+        st.markdown("<div style='height: 28vh;'></div>", unsafe_allow_html=True)
         st.markdown("""
+        <div style="padding: 0 40px;">
         <div style="font-size:36px; font-weight:900; color:#2c1a0e; margin-bottom:8px;">로그인</div>
         <div style="font-size:15px; color:#9a7a60; margin-bottom:20px;">계정과 비밀번호를 입력하세요.</div>
         <div style="width:48px; height:3px; background:#b8913a; border-radius:2px; margin-bottom:32px;"></div>
+        </div>
         """, unsafe_allow_html=True)
 
-        with st.form("login_form", clear_on_submit=False):
-            user = st.text_input("사용자 계정", placeholder="예: admin")
-            pw   = st.text_input("비밀번호", type="password", placeholder="비밀번호 입력")
-            submitted = st.form_submit_button("로그인", use_container_width=True)
-        if submitted:
-            ok, role = check_login(user.strip(), pw)
-            if ok:
-                st.session_state.login = True
-                st.session_state.user  = user.strip()
-                st.session_state.role  = role
-                st.session_state.page  = "main"
-                st.rerun()
-            else:
-                st.error("아이디 또는 비밀번호가 틀렸습니다.")
+        _, fc, _ = st.columns([0.08, 0.84, 0.08])
+        with fc:
+            with st.form("login_form", clear_on_submit=False):
+                user = st.text_input("사용자 계정", placeholder="예: admin")
+                pw   = st.text_input("비밀번호", type="password", placeholder="비밀번호 입력")
+                submitted = st.form_submit_button("로그인", use_container_width=True)
+            if submitted:
+                ok, role = check_login(user.strip(), pw)
+                if ok:
+                    st.session_state.login = True
+                    st.session_state.user  = user.strip()
+                    st.session_state.role  = role
+                    st.session_state.page  = "main"
+                    st.rerun()
+                else:
+                    st.error("아이디 또는 비밀번호가 틀렸습니다.")
 
 def topbar():
     if "role" not in st.session_state:
