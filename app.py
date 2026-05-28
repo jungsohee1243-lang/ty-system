@@ -2025,12 +2025,11 @@ def login_page():
         """, unsafe_allow_html=True)
 
     with right_col:
+        st.markdown("<div style='padding: 80px 40px 20px;'>", unsafe_allow_html=True)
         st.markdown("""
-        <div style="background:#f5f0eb; min-height:100vh; padding:80px 56px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;">
-          <div style="font-size:36px; font-weight:900; color:#2c1a0e; margin-bottom:8px;">로그인</div>
-          <div style="font-size:15px; color:#9a7a60; margin-bottom:20px;">계정과 비밀번호를 입력하세요.</div>
-          <div style="width:48px; height:3px; background:#b8913a; border-radius:2px; margin-bottom:36px;"></div>
-        </div>
+        <div style="font-size:36px; font-weight:900; color:#2c1a0e; margin-bottom:8px;">로그인</div>
+        <div style="font-size:15px; color:#9a7a60; margin-bottom:20px;">계정과 비밀번호를 입력하세요.</div>
+        <div style="width:48px; height:3px; background:#b8913a; border-radius:2px; margin-bottom:32px;"></div>
         """, unsafe_allow_html=True)
 
         with st.form("login_form", clear_on_submit=False):
