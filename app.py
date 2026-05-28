@@ -1859,6 +1859,18 @@ if "user" not in st.session_state:
     st.session_state.user = ""
 if "page" not in st.session_state:
     st.session_state.page = "main"
+if "dash_schedule" not in st.session_state:
+    st.session_state.dash_schedule = None   # 작업일정 이미지 bytes
+if "dash_ty" not in st.session_state:
+    st.session_state.dash_ty = None         # TY 현황표 이미지 bytes
+if "dash_ky" not in st.session_state:
+    st.session_state.dash_ky = None         # KY 현황표 이미지 bytes
+if "dash_schedule_name" not in st.session_state:
+    st.session_state.dash_schedule_name = ""
+if "dash_ty_name" not in st.session_state:
+    st.session_state.dash_ty_name = ""
+if "dash_ky_name" not in st.session_state:
+    st.session_state.dash_ky_name = ""
 
 # ── 사용자 계정 관리 (st.secrets 우선, 없으면 session_state 내장) ──
 def _default_users():
@@ -1977,22 +1989,61 @@ hr { border-color:var(--line); }
 """, unsafe_allow_html=True)
 
 def login_page():
-    left, right = st.columns([1.05, 1], gap="large")
-    with left:
-        st.markdown(f"""
-        <div class="badge">TY · KY · YST 통합 업무 포털</div>
-        <div class="title">업무 자동화 시스템</div>
-        <div class="desc">전자상거래 · 3PL · 씨앤에어 업무를 한 곳에서 처리합니다.<br>파일 변환, 검증, 현장 운영 자료를 빠르게 자동화합니다.</div>
-        <div class="logo-box">{logo_html}</div>
-        <div class="version">TY LOGIS Internal System · v23.0</div>
-        """, unsafe_allow_html=True)
-    with right:
-        st.markdown('''
-        <div class="login-card">
-          <div class="login-gold-bar"></div>
-          <div class="login-title">로그인</div>
-          <div class="login-sub">계정과 비밀번호를 입력하세요.</div>
-        </div>''', unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    [data-testid="stAppViewContainer"] > .main { padding: 0 !important; }
+    .block-container { padding: 0 !important; max-width: 100% !important; }
+    .login-wrap { display: flex; min-height: 100vh; }
+    .login-left {
+        background: #2c1a0e;
+        width: 42%;
+        min-height: 100vh;
+        padding: 60px 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .login-right {
+        flex: 1;
+        background: #f5f0eb;
+        padding: 60px 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .ll-company { font-size: 28px; font-weight: 900; color: #f3dfad; letter-spacing: 1px; margin-bottom: 4px; }
+    .ll-sub { font-size: 11px; color: #b8913a; letter-spacing: 4px; margin-bottom: 24px; }
+    .ll-divider { height: 1px; background: #4a2e1a; margin-bottom: 24px; }
+    .ll-desc { font-size: 14px; color: #8a6a4a; line-height: 1.8; margin-bottom: 32px; }
+    .ll-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .ll-dot { width: 6px; height: 6px; background: #b8913a; border-radius: 50%; flex-shrink: 0; }
+    .ll-item-text { font-size: 13px; color: #7a5a30; }
+    .ll-ver { font-size: 11px; color: #4a2e1a; letter-spacing: 2px; margin-top: auto; padding-top: 48px; }
+    .lr-title { font-size: 32px; font-weight: 900; color: #2c1a0e; margin-bottom: 6px; }
+    .lr-sub { font-size: 14px; color: #9a7a60; margin-bottom: 32px; }
+    .lr-gold-bar { width: 48px; height: 3px; background: #b8913a; margin-bottom: 32px; border-radius: 2px; }
+    </style>
+    <div class="login-wrap">
+      <div class="login-left">
+        <div class="ll-company">TY LOGIS</div>
+        <div class="ll-sub">INTERNAL SYSTEM</div>
+        <div class="ll-divider"></div>
+        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">전자상거래 통관 · 택배 업무</div></div>
+        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">3PL BL 변환 · 현장 운영</div></div>
+        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">씨앤에어 자동화 신고</div></div>
+        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">알리 HT 변환 · 주소 검증</div></div>
+        <div class="ll-ver">TY · KY · YST 통합 업무 포털 · v23.0</div>
+      </div>
+      <div class="login-right">
+        <div class="lr-title">로그인</div>
+        <div class="lr-sub">계정과 비밀번호를 입력하세요.</div>
+        <div class="lr-gold-bar"></div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    _, col, _ = st.columns([0.42, 0.42, 0.16])
+    with col:
         with st.form("login_form", clear_on_submit=False):
             user = st.text_input("사용자 계정", placeholder="예: admin")
             pw   = st.text_input("비밀번호", type="password", placeholder="비밀번호 입력")
@@ -2030,42 +2081,90 @@ def topbar():
 def main_page():
     topbar()
 
+    # ── 부서 메뉴 ──
     st.markdown('<div class="section-title">부서별 업무 메뉴</div>', unsafe_allow_html=True)
-
     c1, c2, c3 = st.columns(3, gap="large")
-
     with c1:
-        st.markdown(
-            '<div class="dashboard-card"><div class="card-icon">🛒</div>'
-            '<div class="card-title">전자상거래</div>'
-            '<div class="card-desc">전자상 통관·택배·경동리스트 관련 업무를 처리합니다.</div></div>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="dashboard-card"><div class="card-icon">🛒</div><div class="card-title">전자상거래</div><div class="card-desc">전자상 통관·택배·경동리스트 관련 업무를 처리합니다.</div></div>', unsafe_allow_html=True)
         if st.button("전자상거래 들어가기", use_container_width=True, key="go_ecom"):
-            st.session_state.page = "ecommerce"
-            st.rerun()
-
+            st.session_state.page = "ecommerce"; st.rerun()
     with c2:
-        st.markdown(
-            '<div class="dashboard-card"><div class="card-icon">🚢</div>'
-            '<div class="card-title">SEA & AIR</div>'
-            '<div class="card-desc">해상·항공 포워딩 관련 업무 메뉴를 구성할 수 있습니다.</div></div>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="dashboard-card"><div class="card-icon">🚢</div><div class="card-title">SEA & AIR</div><div class="card-desc">해상·항공 포워딩 관련 업무 메뉴를 구성할 수 있습니다.</div></div>', unsafe_allow_html=True)
         if st.button("SEA & AIR 들어가기", use_container_width=True, key="go_seaair"):
-            st.session_state.page = "seaair"
-            st.rerun()
-
+            st.session_state.page = "seaair"; st.rerun()
     with c3:
-        st.markdown(
-            '<div class="dashboard-card"><div class="card-icon">🏭</div>'
-            '<div class="card-title">3PL</div>'
-            '<div class="card-desc">BL/PDF 변환, 현장 운영, 적재 관련 업무를 처리합니다.</div></div>',
-            unsafe_allow_html=True,
-        )
+        st.markdown('<div class="dashboard-card"><div class="card-icon">🏭</div><div class="card-title">3PL</div><div class="card-desc">BL/PDF 변환, 현장 운영, 적재 관련 업무를 처리합니다.</div></div>', unsafe_allow_html=True)
         if st.button("3PL 들어가기", use_container_width=True, key="go_3pl"):
-            st.session_state.page = "threepl"
-            st.rerun()
+            st.session_state.page = "threepl"; st.rerun()
+
+    st.divider()
+
+    # ── 대시보드 ──
+    st.markdown('<div class="section-title">📋 오늘의 현장 현황</div>', unsafe_allow_html=True)
+
+    today_str = datetime.now().strftime("%Y년 %m월 %d일")
+
+    # 관리자: 업로드 UI
+    if is_admin():
+        with st.expander("🔧 관리자 — 이미지 업로드", expanded=False):
+            ua, ub, uc = st.columns(3)
+            with ua:
+                up_sched = st.file_uploader("📅 작업일정", type=["png","jpg","jpeg","webp"], key="up_sched")
+                if up_sched:
+                    st.session_state.dash_schedule = up_sched.read()
+                    st.session_state.dash_schedule_name = up_sched.name
+                    st.success("작업일정 등록 완료!")
+                if st.session_state.dash_schedule:
+                    if st.button("🗑 작업일정 삭제", key="del_sched"):
+                        st.session_state.dash_schedule = None
+                        st.session_state.dash_schedule_name = ""
+                        st.rerun()
+            with ub:
+                up_ty = st.file_uploader("📊 TY 현황표", type=["png","jpg","jpeg","webp"], key="up_ty")
+                if up_ty:
+                    st.session_state.dash_ty = up_ty.read()
+                    st.session_state.dash_ty_name = up_ty.name
+                    st.success("TY 현황표 등록 완료!")
+                if st.session_state.dash_ty:
+                    if st.button("🗑 TY 현황표 삭제", key="del_ty"):
+                        st.session_state.dash_ty = None
+                        st.session_state.dash_ty_name = ""
+                        st.rerun()
+            with uc:
+                up_ky = st.file_uploader("📊 KY 현황표", type=["png","jpg","jpeg","webp"], key="up_ky")
+                if up_ky:
+                    st.session_state.dash_ky = up_ky.read()
+                    st.session_state.dash_ky_name = up_ky.name
+                    st.success("KY 현황표 등록 완료!")
+                if st.session_state.dash_ky:
+                    if st.button("🗑 KY 현황표 삭제", key="del_ky"):
+                        st.session_state.dash_ky = None
+                        st.session_state.dash_ky_name = ""
+                        st.rerun()
+
+    # 작업일정 + 현황표 탭
+    tab_sched, tab_ty, tab_ky = st.tabs(["📅 작업일정", "📊 TY 현황표", "📊 KY 현황표"])
+
+    with tab_sched:
+        if st.session_state.dash_schedule:
+            st.markdown(f'<div style="font-size:13px;color:#9a7a60;margin-bottom:8px;">{today_str} 작업일정</div>', unsafe_allow_html=True)
+            st.image(st.session_state.dash_schedule, use_container_width=True)
+        else:
+            st.markdown('<div style="text-align:center;padding:60px 0;color:#b8913a;font-size:15px;">등록된 작업일정이 없습니다.</div>', unsafe_allow_html=True)
+
+    with tab_ty:
+        if st.session_state.dash_ty:
+            st.markdown(f'<div style="font-size:13px;color:#9a7a60;margin-bottom:8px;">{today_str} TY 작업현황표</div>', unsafe_allow_html=True)
+            st.image(st.session_state.dash_ty, use_container_width=True)
+        else:
+            st.markdown('<div style="text-align:center;padding:60px 0;color:#b8913a;font-size:15px;">등록된 TY 현황표가 없습니다.</div>', unsafe_allow_html=True)
+
+    with tab_ky:
+        if st.session_state.dash_ky:
+            st.markdown(f'<div style="font-size:13px;color:#9a7a60;margin-bottom:8px;">{today_str} KY 작업현황표</div>', unsafe_allow_html=True)
+            st.image(st.session_state.dash_ky, use_container_width=True)
+        else:
+            st.markdown('<div style="text-align:center;padding:60px 0;color:#b8913a;font-size:15px;">등록된 KY 현황표가 없습니다.</div>', unsafe_allow_html=True)
 
     st.divider()
 
