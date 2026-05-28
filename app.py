@@ -1872,6 +1872,70 @@ if "dash_ty_name" not in st.session_state:
 if "dash_ky_name" not in st.session_state:
     st.session_state.dash_ky_name = ""
 
+# ── GitHub 이미지 저장/로드 함수 ──
+import base64 as _b64
+
+def _gh_headers():
+    token = st.secrets.get("GITHUB_TOKEN", "")
+    return {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+
+def _gh_repo():
+    return st.secrets.get("GITHUB_REPO", "")
+
+def github_upload_image(image_bytes, filename):
+    """이미지를 GitHub 레포 dashboard/ 폴더에 업로드."""
+    import requests as _req
+    repo = _gh_repo()
+    if not repo:
+        return False
+    url = f"https://api.github.com/repos/{repo}/contents/dashboard/{filename}"
+    # 기존 파일 SHA 조회 (업데이트 시 필요)
+    r = _req.get(url, headers=_gh_headers())
+    sha = r.json().get("sha") if r.status_code == 200 else None
+    data = {"message": f"update {filename}", "content": _b64.b64encode(image_bytes).decode()}
+    if sha:
+        data["sha"] = sha
+    r2 = _req.put(url, headers=_gh_headers(), json=data)
+    return r2.status_code in (200, 201)
+
+def github_load_image(filename):
+    """GitHub에서 이미지 로드."""
+    import requests as _req
+    repo = _gh_repo()
+    if not repo:
+        return None
+    url = f"https://api.github.com/repos/{repo}/contents/dashboard/{filename}"
+    r = _req.get(url, headers=_gh_headers())
+    if r.status_code == 200:
+        return _b64.b64decode(r.json()["content"])
+    return None
+
+def github_delete_image(filename):
+    """GitHub에서 이미지 삭제."""
+    import requests as _req
+    repo = _gh_repo()
+    if not repo:
+        return False
+    url = f"https://api.github.com/repos/{repo}/contents/dashboard/{filename}"
+    r = _req.get(url, headers=_gh_headers())
+    if r.status_code != 200:
+        return False
+    sha = r.json().get("sha")
+    data = {"message": f"delete {filename}", "sha": sha}
+    r2 = _req.delete(url, headers=_gh_headers(), json=data)
+    return r2.status_code == 200
+
+def load_dashboard_from_github():
+    """앱 시작 시 GitHub에서 대시보드 이미지 불러오기."""
+    if st.session_state.get("_gh_loaded"):
+        return
+    for key, fname in [("dash_schedule", "schedule.png"), ("dash_ty", "ty.png"), ("dash_ky", "ky.png")]:
+        if not st.session_state.get(key):
+            img = github_load_image(fname)
+            if img:
+                st.session_state[key] = img
+    st.session_state["_gh_loaded"] = True
+
 # ── 사용자 계정 관리 (st.secrets 우선, 없으면 session_state 내장) ──
 def _default_users():
     return {
@@ -2081,6 +2145,7 @@ def topbar():
 
 def main_page():
     today_str = datetime.now().strftime("%Y년 %m월 %d일")
+    load_dashboard_from_github()
 
     # ── 사이드바 ──
     with st.sidebar:
@@ -2129,30 +2194,42 @@ def main_page():
             with ua:
                 up_sched = st.file_uploader("📅 작업일정", type=["png","jpg","jpeg","webp"], key="up_sched")
                 if up_sched:
-                    st.session_state.dash_schedule = up_sched.read()
-                    st.session_state.dash_schedule_name = up_sched.name
-                    st.success("작업일정 등록 완료!")
+                    img_bytes = up_sched.read()
+                    st.session_state.dash_schedule = img_bytes
+                    with st.spinner("저장 중..."):
+                        ok = github_upload_image(img_bytes, "schedule.png")
+                    st.success("작업일정 등록 완료!" + (" (영구저장)" if ok else " (임시저장)"))
                 if st.session_state.dash_schedule:
                     if st.button("🗑 작업일정 삭제", key="del_sched"):
-                        st.session_state.dash_schedule = None; st.rerun()
+                        st.session_state.dash_schedule = None
+                        github_delete_image("schedule.png")
+                        st.rerun()
             with ub:
                 up_ty = st.file_uploader("📊 TY 현황표", type=["png","jpg","jpeg","webp"], key="up_ty")
                 if up_ty:
-                    st.session_state.dash_ty = up_ty.read()
-                    st.session_state.dash_ty_name = up_ty.name
-                    st.success("TY 현황표 등록 완료!")
+                    img_bytes = up_ty.read()
+                    st.session_state.dash_ty = img_bytes
+                    with st.spinner("저장 중..."):
+                        ok = github_upload_image(img_bytes, "ty.png")
+                    st.success("TY 현황표 등록 완료!" + (" (영구저장)" if ok else " (임시저장)"))
                 if st.session_state.dash_ty:
                     if st.button("🗑 TY 현황표 삭제", key="del_ty"):
-                        st.session_state.dash_ty = None; st.rerun()
+                        st.session_state.dash_ty = None
+                        github_delete_image("ty.png")
+                        st.rerun()
             with uc:
                 up_ky = st.file_uploader("📊 KY 현황표", type=["png","jpg","jpeg","webp"], key="up_ky")
                 if up_ky:
-                    st.session_state.dash_ky = up_ky.read()
-                    st.session_state.dash_ky_name = up_ky.name
-                    st.success("KY 현황표 등록 완료!")
+                    img_bytes = up_ky.read()
+                    st.session_state.dash_ky = img_bytes
+                    with st.spinner("저장 중..."):
+                        ok = github_upload_image(img_bytes, "ky.png")
+                    st.success("KY 현황표 등록 완료!" + (" (영구저장)" if ok else " (임시저장)"))
                 if st.session_state.dash_ky:
                     if st.button("🗑 KY 현황표 삭제", key="del_ky"):
-                        st.session_state.dash_ky = None; st.rerun()
+                        st.session_state.dash_ky = None
+                        github_delete_image("ky.png")
+                        st.rerun()
 
     tab_sched, tab_ty, tab_ky = st.tabs(["📅 작업일정", "📊 TY 현황표", "📊 KY 현황표"])
     with tab_sched:
