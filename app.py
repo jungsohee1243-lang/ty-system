@@ -1939,6 +1939,40 @@ div.stButton > button:hover, div.stDownloadButton > button:hover { background:va
 .content-card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:28px; box-shadow:0 4px 24px rgba(44,26,14,0.06); margin-bottom:18px; border-top:3px solid var(--gold); }
 .page-title { font-size:30px; font-weight:900; color:var(--brown); margin-bottom:8px; }
 .page-sub { color:var(--muted); font-size:15px; }
+
+/* ── 탭 스타일 ── */
+[data-testid="stTabs"] [role="tablist"] { gap:4px; border-bottom:2px solid var(--line); }
+[data-testid="stTabs"] [role="tab"] { color:var(--muted); font-weight:700; font-size:14px; padding:10px 18px; border-radius:8px 8px 0 0; border:none; background:transparent; }
+[data-testid="stTabs"] [role="tab"][aria-selected="true"] { color:var(--brown); border-bottom:3px solid var(--gold); background:var(--gold-pale); }
+[data-testid="stTabs"] [role="tab"]:hover { background:var(--gold-pale); color:var(--brown); }
+[data-testid="stTabs"] [data-testid="stTabsContent"] { padding-top:1.5rem; }
+
+/* ── 업로더 ── */
+[data-testid="stFileUploader"] { background:var(--gold-pale); border:1.5px dashed var(--gold); border-radius:12px; padding:8px; }
+[data-testid="stFileUploader"] button { background:var(--brown) !important; color:#f3dfad !important; border-radius:8px !important; }
+
+/* ── 데이터프레임 ── */
+[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+
+/* ── 슬라이더 ── */
+[data-testid="stSlider"] [role="slider"] { background:var(--gold) !important; }
+[data-testid="stSlider"] [data-testid="stSliderTrack"] { background:var(--gold-light) !important; }
+
+/* ── 셀렉트박스/라디오 ── */
+[data-testid="stSelectbox"] select, [data-testid="stMultiSelect"] { border-color:var(--line) !important; border-radius:10px !important; }
+[data-testid="stRadio"] [role="radio"][aria-checked="true"] + div { color:var(--brown); font-weight:700; }
+
+/* ── 섹션 구분선 ── */
+hr { border-color:var(--line); }
+
+/* ── success/info/error 메시지 ── */
+[data-testid="stAlert"][data-baseweb="notification"] { border-radius:12px; border-left:4px solid var(--gold); }
+
+/* ── 캡션 ── */
+[data-testid="stCaptionContainer"] { color:var(--muted); }
+
+/* ── topbar 골드 상단 라인 ── */
+.topbar { border-top:3px solid var(--gold) !important; }
 </style>
 """, unsafe_allow_html=True)
 
