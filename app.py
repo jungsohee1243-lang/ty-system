@@ -1952,6 +1952,12 @@ div.stButton > button:hover, div.stDownloadButton > button:hover { background:va
 .page-title { font-size:30px; font-weight:900; color:var(--brown); margin-bottom:8px; }
 .page-sub { color:var(--muted); font-size:15px; }
 
+/* ── 사이드바 ── */
+[data-testid="stSidebar"] { background: #1e0e06 !important; border-right: 1px solid #3a2010; }
+[data-testid="stSidebar"] .stButton > button { background: transparent; color: #c8a878; border: 1px solid #3a2010; border-radius: 8px; font-weight: 600; text-align: left; justify-content: flex-start; }
+[data-testid="stSidebar"] .stButton > button:hover { background: #2c1a0e; color: #f3dfad; border-color: #b8913a; }
+[data-testid="stSidebar"] hr { border-color: #3a2010; }
+
 /* ── 탭 스타일 ── */
 [data-testid="stTabs"] [role="tablist"] { gap:4px; border-bottom:2px solid var(--line); }
 [data-testid="stTabs"] [role="tab"] { color:var(--muted); font-weight:700; font-size:14px; padding:10px 18px; border-radius:8px 8px 0 0; border:none; background:transparent; }
@@ -2072,9 +2078,47 @@ def topbar():
 
 
 def main_page():
-    topbar()
+    today_str = datetime.now().strftime("%Y년 %m월 %d일")
 
-    # ── 부서 메뉴 ──
+    # ── 사이드바 ──
+    with st.sidebar:
+        st.markdown(f"""
+        <div style="background:#2c1a0e; margin:-1rem -1rem 0; padding:28px 20px 20px; text-align:center;">
+          <div style="font-size:22px; font-weight:900; color:#f3dfad; letter-spacing:1px;">TY LOGIS</div>
+          <div style="font-size:9px; color:#b8913a; letter-spacing:4px; margin-top:3px;">INTERNAL SYSTEM</div>
+          <div style="height:1px; background:#4a2e1a; margin:14px 0 10px;"></div>
+          <div style="font-size:11px; color:#7a5a30;">{st.session_state.user} 님</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
+        st.markdown('<div style="font-size:11px;color:#b8913a;letter-spacing:2px;padding:0 4px;margin-bottom:6px;">NAVIGATION</div>', unsafe_allow_html=True)
+
+        if st.button("🏠  메인 대시보드", use_container_width=True, key="nav_main"):
+            st.session_state.page = "main"; st.rerun()
+        if st.button("🛒  전자상거래", use_container_width=True, key="nav_ecom"):
+            st.session_state.page = "ecommerce"; st.rerun()
+        if st.button("🚢  SEA & AIR", use_container_width=True, key="nav_sea"):
+            st.session_state.page = "seaair"; st.rerun()
+        if st.button("🏭  3PL", use_container_width=True, key="nav_3pl"):
+            st.session_state.page = "threepl"; st.rerun()
+
+        st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
+        st.divider()
+
+        if is_admin():
+            if st.button("👤  계정 관리", use_container_width=True, key="nav_admin"):
+                st.session_state.page = "admin"; st.rerun()
+        if st.button("🚪  로그아웃", use_container_width=True, key="nav_logout"):
+            st.session_state.login = False
+            st.session_state.user  = ""
+            st.session_state.role  = "user"
+            st.session_state.page  = "main"
+            st.rerun()
+
+        st.markdown(f'<div style="font-size:10px;color:#b8913a;text-align:center;margin-top:20px;">{today_str}</div>', unsafe_allow_html=True)
+
+    # ── 메인 콘텐츠 ──
     st.markdown('<div class="section-title">부서별 업무 메뉴</div>', unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3, gap="large")
     with c1:
@@ -2092,12 +2136,9 @@ def main_page():
 
     st.divider()
 
-    # ── 대시보드 ──
+    # ── 현장 현황 대시보드 ──
     st.markdown('<div class="section-title">📋 오늘의 현장 현황</div>', unsafe_allow_html=True)
 
-    today_str = datetime.now().strftime("%Y년 %m월 %d일")
-
-    # 관리자: 업로드 UI
     if is_admin():
         with st.expander("🔧 관리자 — 이미지 업로드", expanded=False):
             ua, ub, uc = st.columns(3)
@@ -2109,9 +2150,7 @@ def main_page():
                     st.success("작업일정 등록 완료!")
                 if st.session_state.dash_schedule:
                     if st.button("🗑 작업일정 삭제", key="del_sched"):
-                        st.session_state.dash_schedule = None
-                        st.session_state.dash_schedule_name = ""
-                        st.rerun()
+                        st.session_state.dash_schedule = None; st.rerun()
             with ub:
                 up_ty = st.file_uploader("📊 TY 현황표", type=["png","jpg","jpeg","webp"], key="up_ty")
                 if up_ty:
@@ -2120,9 +2159,7 @@ def main_page():
                     st.success("TY 현황표 등록 완료!")
                 if st.session_state.dash_ty:
                     if st.button("🗑 TY 현황표 삭제", key="del_ty"):
-                        st.session_state.dash_ty = None
-                        st.session_state.dash_ty_name = ""
-                        st.rerun()
+                        st.session_state.dash_ty = None; st.rerun()
             with uc:
                 up_ky = st.file_uploader("📊 KY 현황표", type=["png","jpg","jpeg","webp"], key="up_ky")
                 if up_ky:
@@ -2131,49 +2168,27 @@ def main_page():
                     st.success("KY 현황표 등록 완료!")
                 if st.session_state.dash_ky:
                     if st.button("🗑 KY 현황표 삭제", key="del_ky"):
-                        st.session_state.dash_ky = None
-                        st.session_state.dash_ky_name = ""
-                        st.rerun()
+                        st.session_state.dash_ky = None; st.rerun()
 
-    # 작업일정 + 현황표 탭
     tab_sched, tab_ty, tab_ky = st.tabs(["📅 작업일정", "📊 TY 현황표", "📊 KY 현황표"])
-
     with tab_sched:
         if st.session_state.dash_schedule:
             st.markdown(f'<div style="font-size:13px;color:#9a7a60;margin-bottom:8px;">{today_str} 작업일정</div>', unsafe_allow_html=True)
             st.image(st.session_state.dash_schedule, use_container_width=True)
         else:
             st.markdown('<div style="text-align:center;padding:60px 0;color:#b8913a;font-size:15px;">등록된 작업일정이 없습니다.</div>', unsafe_allow_html=True)
-
     with tab_ty:
         if st.session_state.dash_ty:
             st.markdown(f'<div style="font-size:13px;color:#9a7a60;margin-bottom:8px;">{today_str} TY 작업현황표</div>', unsafe_allow_html=True)
             st.image(st.session_state.dash_ty, use_container_width=True)
         else:
             st.markdown('<div style="text-align:center;padding:60px 0;color:#b8913a;font-size:15px;">등록된 TY 현황표가 없습니다.</div>', unsafe_allow_html=True)
-
     with tab_ky:
         if st.session_state.dash_ky:
             st.markdown(f'<div style="font-size:13px;color:#9a7a60;margin-bottom:8px;">{today_str} KY 작업현황표</div>', unsafe_allow_html=True)
             st.image(st.session_state.dash_ky, use_container_width=True)
         else:
             st.markdown('<div style="text-align:center;padding:60px 0;color:#b8913a;font-size:15px;">등록된 KY 현황표가 없습니다.</div>', unsafe_allow_html=True)
-
-    st.divider()
-
-    col_lo, col_adm = st.columns([1, 1])
-    with col_lo:
-        if st.button("로그아웃", use_container_width=True):
-            st.session_state.login = False
-            st.session_state.user  = ""
-            st.session_state.role  = "user"
-            st.session_state.page  = "main"
-            st.rerun()
-    with col_adm:
-        if is_admin():
-            if st.button("👤 계정 관리", use_container_width=True, key="go_admin"):
-                st.session_state.page = "admin"
-                st.rerun()
 
 
 def admin_page():
