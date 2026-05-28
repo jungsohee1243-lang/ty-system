@@ -1993,57 +1993,46 @@ def login_page():
     <style>
     [data-testid="stAppViewContainer"] > .main { padding: 0 !important; }
     .block-container { padding: 0 !important; max-width: 100% !important; }
-    .login-wrap { display: flex; min-height: 100vh; }
-    .login-left {
-        background: #2c1a0e;
-        width: 42%;
-        min-height: 100vh;
-        padding: 60px 48px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .login-right {
-        flex: 1;
-        background: #f5f0eb;
-        padding: 60px 48px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-    .ll-company { font-size: 28px; font-weight: 900; color: #f3dfad; letter-spacing: 1px; margin-bottom: 4px; }
-    .ll-sub { font-size: 11px; color: #b8913a; letter-spacing: 4px; margin-bottom: 24px; }
-    .ll-divider { height: 1px; background: #4a2e1a; margin-bottom: 24px; }
-    .ll-desc { font-size: 14px; color: #8a6a4a; line-height: 1.8; margin-bottom: 32px; }
-    .ll-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .ll-dot { width: 6px; height: 6px; background: #b8913a; border-radius: 50%; flex-shrink: 0; }
-    .ll-item-text { font-size: 13px; color: #7a5a30; }
-    .ll-ver { font-size: 11px; color: #4a2e1a; letter-spacing: 2px; margin-top: auto; padding-top: 48px; }
-    .lr-title { font-size: 32px; font-weight: 900; color: #2c1a0e; margin-bottom: 6px; }
-    .lr-sub { font-size: 14px; color: #9a7a60; margin-bottom: 32px; }
-    .lr-gold-bar { width: 48px; height: 3px; background: #b8913a; margin-bottom: 32px; border-radius: 2px; }
     </style>
-    <div class="login-wrap">
-      <div class="login-left">
-        <div class="ll-company">TY LOGIS</div>
-        <div class="ll-sub">INTERNAL SYSTEM</div>
-        <div class="ll-divider"></div>
-        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">전자상거래 통관 · 택배 업무</div></div>
-        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">3PL BL 변환 · 현장 운영</div></div>
-        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">씨앤에어 자동화 신고</div></div>
-        <div class="ll-item"><div class="ll-dot"></div><div class="ll-item-text">알리 HT 변환 · 주소 검증</div></div>
-        <div class="ll-ver">TY · KY · YST 통합 업무 포털 · v23.0</div>
-      </div>
-      <div class="login-right">
-        <div class="lr-title">로그인</div>
-        <div class="lr-sub">계정과 비밀번호를 입력하세요.</div>
-        <div class="lr-gold-bar"></div>
-      </div>
-    </div>
     """, unsafe_allow_html=True)
 
-    _, col, _ = st.columns([0.42, 0.42, 0.16])
-    with col:
+    left_col, right_col = st.columns([1, 1])
+
+    with left_col:
+        st.markdown("""
+        <div style="background:#2c1a0e; min-height:100vh; padding:80px 56px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;">
+          <div style="font-size:36px; font-weight:900; color:#f3dfad; letter-spacing:1px; margin-bottom:6px;">TY LOGIS</div>
+          <div style="font-size:12px; color:#b8913a; letter-spacing:5px; margin-bottom:28px;">INTERNAL SYSTEM</div>
+          <div style="height:1px; background:#4a2e1a; margin-bottom:32px;"></div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <div style="width:7px; height:7px; background:#b8913a; border-radius:50%; flex-shrink:0;"></div>
+            <div style="font-size:16px; color:#c8a878;">전자상거래 통관 · 택배 업무</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <div style="width:7px; height:7px; background:#b8913a; border-radius:50%; flex-shrink:0;"></div>
+            <div style="font-size:16px; color:#c8a878;">3PL BL 변환 · 현장 운영</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <div style="width:7px; height:7px; background:#b8913a; border-radius:50%; flex-shrink:0;"></div>
+            <div style="font-size:16px; color:#c8a878;">씨앤에어 자동화 신고</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:40px;">
+            <div style="width:7px; height:7px; background:#b8913a; border-radius:50%; flex-shrink:0;"></div>
+            <div style="font-size:16px; color:#c8a878;">알리 HT 변환 · 주소 검증</div>
+          </div>
+          <div style="font-size:12px; color:#4a2e1a; letter-spacing:2px;">TY · KY · YST 통합 업무 포털 · v23.0</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with right_col:
+        st.markdown("""
+        <div style="background:#f5f0eb; min-height:100vh; padding:80px 56px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;">
+          <div style="font-size:36px; font-weight:900; color:#2c1a0e; margin-bottom:8px;">로그인</div>
+          <div style="font-size:15px; color:#9a7a60; margin-bottom:20px;">계정과 비밀번호를 입력하세요.</div>
+          <div style="width:48px; height:3px; background:#b8913a; border-radius:2px; margin-bottom:36px;"></div>
+        </div>
+        """, unsafe_allow_html=True)
+
         with st.form("login_form", clear_on_submit=False):
             user = st.text_input("사용자 계정", placeholder="예: admin")
             pw   = st.text_input("비밀번호", type="password", placeholder="비밀번호 입력")
